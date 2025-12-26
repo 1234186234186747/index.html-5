@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Flipkart - All iPhone Series</title>
+    <title>Flipkart - Electronics Store</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
@@ -11,35 +11,34 @@
         .fk-blue-bg { background-color: var(--fk-blue); }
         .fk-orange-bg { background-color: var(--fk-orange); }
         .hidden { display: none !important; }
-        .product-card { border-right: 1px solid #e5e7eb; border-bottom: 1px solid #e5e7eb; background: white; }
-        .variant-dot { width: 24px; height: 24px; border-radius: 50%; border: 1px solid #ccc; cursor: pointer; }
-        .variant-dot.active { border: 2px solid var(--fk-blue); outline: 1px solid var(--fk-blue); }
-        .storage-btn { border: 1px solid #ddd; padding: 5px 10px; border-radius: 4px; font-size: 11px; cursor: pointer; }
-        .storage-btn.active { border-color: var(--fk-blue); color: var(--fk-blue); background: #f0f5ff; font-weight: bold; }
-        .edit-lock { position: absolute; top: 5px; right: 5px; font-size: 10px; color: #ddd; z-index: 20; }
+        .product-card { border-right: 1px solid #f0f0f0; border-bottom: 1px solid #f0f0f0; background: white; position: relative; }
+        .admin-lock { position: absolute; top: 8px; right: 8px; color: #ddd; font-size: 10px; cursor: pointer; z-index: 20; padding: 5px; }
+        input, select, textarea { border: 1px solid #ddd; padding: 10px; border-radius: 4px; width: 100%; outline: none; margin-bottom: 10px; font-size: 14px; }
+        .variant-dot { width: 22px; height: 22px; border-radius: 50%; border: 1px solid #ccc; cursor: pointer; }
+        .variant-dot.active { border: 2px solid var(--fk-blue); outline: 1px solid #fff; }
     </style>
 </head>
 <body class="bg-gray-100 font-sans">
 
-    <nav class="fk-blue-bg p-3 sticky top-0 z-[100] text-white shadow-md">
-        <div class="flex items-center justify-between mb-3">
+    <nav class="fk-blue-bg p-3 sticky top-0 z-[100] text-white">
+        <div class="flex items-center justify-between mb-2">
             <div class="flex items-center" onclick="location.reload()">
                 <i class="fa-solid fa-bars mr-4 text-lg"></i>
                 <h1 class="text-xl font-bold italic tracking-tighter">Flipkart</h1>
             </div>
             <div class="flex items-center space-x-4">
-                <button onclick="openAdmin()" class="text-[10px] border border-white/30 px-2 py-1 rounded uppercase">Admin</button>
+                <button onclick="openAddProduct()" class="text-[10px] border border-white/40 px-2 py-1 rounded uppercase font-bold tracking-wider">Add Item</button>
                 <i class="fa-solid fa-cart-shopping"></i>
             </div>
         </div>
         <div class="relative">
-            <input type="text" placeholder="Search iPhone 14, 15, 16, 17..." class="w-full h-9 rounded-sm pl-10 pr-4 text-black text-sm outline-none">
-            <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-gray-400"></i>
+            <input type="text" placeholder="Search for Products, Brands and More" class="w-full h-10 rounded-sm pl-10 pr-4 text-black text-sm shadow-inner">
+            <i class="fa-solid fa-magnifying-glass absolute left-3 top-3 text-gray-400"></i>
         </div>
     </nav>
 
     <div id="storePage">
-        <div class="bg-white p-2 mb-2"><img src="https://rukminim1.flixcart.com/fk-p-flap/1600/270/image/b0717a61f879654d.jpg" class="w-full rounded-sm"></div>
+        <div class="bg-white p-2 mb-2"><img src="https://rukminim1.flixcart.com/fk-p-flap/1600/270/image/b0717a61f879654d.jpg" class="w-full rounded-sm shadow-sm"></div>
         <div id="productGrid" class="grid grid-cols-2 bg-white"></div>
     </div>
 
@@ -48,93 +47,136 @@
             <button onclick="showStore()" class="text-gray-700 mr-4 text-xl"><i class="fa-solid fa-arrow-left"></i></button>
             <span class="font-bold text-sm">Product Details</span>
         </nav>
-        
         <div class="p-4">
             <div class="h-64 flex items-center justify-center mb-6"><img id="detImg" src="" class="max-h-full object-contain"></div>
-            <h2 id="detName" class="text-md text-gray-800 leading-tight mb-2"></h2>
+            <h2 id="detName" class="text-md text-gray-800 font-medium leading-tight mb-2"></h2>
             <div class="flex items-center space-x-2 mb-2">
                 <span id="detPrice" class="text-2xl font-bold"></span>
-                <span class="text-green-600 font-bold text-sm italic">Special Price</span>
+                <span class="text-green-600 font-bold text-sm">Special Offer</span>
             </div>
             <img src="https://static-assets-web.flixcart.com/fk-p-linchpin-web/fk-cp-zion/img/fa_62673a.png" class="h-4 mb-4">
-            
             <hr class="my-4">
-            
-            <div class="mb-4">
-                <p class="text-xs font-bold text-gray-500 uppercase mb-3">Select Color</p>
-                <div id="colorContainer" class="flex space-x-4"></div>
-            </div>
-
-            <div class="mb-4">
-                <p class="text-xs font-bold text-gray-500 uppercase mb-3">Storage</p>
-                <div class="flex space-x-3">
-                    <div class="storage-btn active" onclick="selS(this)">128 GB</div>
-                    <div class="storage-btn" onclick="selS(this)">256 GB</div>
-                    <div class="storage-btn" onclick="selS(this)">512 GB</div>
-                </div>
+            <p class="text-[11px] font-bold text-gray-400 uppercase mb-3">Available Colors</p>
+            <div id="colorContainer" class="flex space-x-4 mb-4"></div>
+            <div class="text-sm text-gray-600 space-y-2">
+                <p class="font-bold text-black">Highlights:</p>
+                <ul class="list-disc ml-4">
+                    <li>1 Year Brand Warranty</li>
+                    <li>7 Days Replacement Policy</li>
+                    <li>GST Invoice Available</li>
+                </ul>
             </div>
         </div>
-
-        <div class="fixed bottom-0 w-full flex h-14 bg-white border-t z-[160]">
-            <button class="flex-1 font-bold text-sm uppercase border-r">Add to Cart</button>
+        <div class="fixed bottom-0 w-full flex h-14 bg-white border-t z-[160] shadow-2xl">
+            <button class="flex-1 font-bold text-sm uppercase">Add to Cart</button>
             <button onclick="openAddress()" class="flex-1 fk-orange-bg text-white font-bold text-sm uppercase">Buy Now</button>
         </div>
     </div>
 
-    <div id="addressPage" class="hidden fixed inset-0 bg-white z-[200] overflow-y-auto p-5">
-        <h3 class="font-bold text-lg mb-6 border-b pb-2">Delivery Details</h3>
-        <div class="space-y-4">
-            <input type="text" id="adrName" placeholder="Full Name" class="w-full border p-3 rounded">
-            <input type="number" id="adrPhone" placeholder="10-digit Mobile Number" class="w-full border p-3 rounded">
-            <div class="flex space-x-2">
-                <input type="number" placeholder="Pincode" class="flex-1 border p-3 rounded">
-                <input type="text" placeholder="City" class="flex-1 border p-3 rounded">
+    <div id="adminModal" class="hidden fixed inset-0 bg-black/80 z-[500] flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-sm rounded-xl p-6 shadow-2xl overflow-y-auto max-h-[90vh]">
+            <h3 class="font-bold text-blue-600 mb-4 border-b pb-2">Admin: Edit/Add Product</h3>
+            <input type="password" id="adminKey" placeholder="Admin Secret (947228)">
+            <label class="text-[10px] font-bold text-gray-400 uppercase">Product Name</label>
+            <input type="text" id="pName">
+            <label class="text-[10px] font-bold text-gray-400 uppercase">Price (₹)</label>
+            <input type="number" id="pPrice">
+            <label class="text-[10px] font-bold text-gray-400 uppercase">Image URL</label>
+            <input type="text" id="pImg">
+            <label class="text-[10px] font-bold text-gray-400 uppercase">Colors (e.g. #000, #fff, blue)</label>
+            <input type="text" id="pColors">
+            
+            <div class="flex space-x-2 mt-4">
+                <button onclick="saveProduct()" class="flex-1 fk-blue-bg text-white py-3 rounded font-bold uppercase text-xs">Save</button>
+                <button onclick="closeAdmin()" class="flex-1 bg-gray-100 py-3 rounded font-bold uppercase text-xs">Cancel</button>
             </div>
-            <textarea id="adrHouse" placeholder="House No., Road Name, Area" class="w-full border p-3 rounded h-24"></textarea>
-            <button onclick="finalOrder()" class="w-full fk-orange-bg text-white py-4 rounded font-bold shadow-lg">CONTINUE TO PAYMENT</button>
+            <button id="delBtn" onclick="deleteProduct()" class="w-full text-red-500 text-[10px] font-bold mt-4 uppercase hidden">Delete Product</button>
         </div>
+    </div>
+
+    <div id="addressPage" class="hidden fixed inset-0 bg-white z-[200] p-5">
+        <h3 class="font-bold text-lg mb-6 border-b pb-2">Delivery Details</h3>
+        <input type="text" id="custName" placeholder="Full Name">
+        <input type="number" id="custPhone" placeholder="Mobile Number">
+        <textarea placeholder="House No, Road, Area, Pincode" class="h-32 mb-4 border p-2"></textarea>
+        <button onclick="startPay()" class="w-full fk-orange-bg text-white py-4 rounded font-bold shadow-xl">CONTINUE TO PAYMENT</button>
     </div>
 
     <script>
         const UPI_ID = "8709615634-w350@ybl";
         const SECRET = "947228";
-        let products = [];
+        let products = JSON.parse(localStorage.getItem('fk_mega_final')) || [];
+        let editIdx = -1;
 
         function init() {
-            // Har series ke liye original images aur colors
-            const series = [
-                { name: "iPhone 17 Pro Max", price: 179900, img: "https://m.media-amazon.com/images/I/81Sig6biNPL._SL1500_.jpg", colors: ['#5E5E5E', '#E1E2E3', '#F7F2EE'] },
-                { name: "iPhone 16 Pro", price: 129900, img: "https://m.media-amazon.com/images/I/81Sig6biNPL._SL1500_.jpg", colors: ['#3c3c3c', '#dcdcdc', '#e3d5ca'] },
-                { name: "iPhone 15 Pro Max", price: 148900, img: "https://m.media-amazon.com/images/I/81Sig6biNPL._SL1500_.jpg", colors: ['#2b2e31', '#e1e2e3', '#f7f2ee'] },
-                { name: "iPhone 15", price: 69900, img: "https://m.media-amazon.com/images/I/71v2jVh6nIL._SL1500_.jpg", colors: ['#add8e6', '#ffb6c1', '#ffffed', '#000000'] },
-                { name: "iPhone 14 Pro", price: 109900, img: "https://m.media-amazon.com/images/I/61H7ID6NdDL._SL1500_.jpg", colors: ['#594f63', '#f4e8ce', '#262b2f'] },
-                { name: "iPhone 14", price: 58900, img: "https://m.media-amazon.com/images/I/61cwywLZSuL._SL1500_.jpg", colors: ['#222930', '#e3dada', '#3d526d'] },
-                { name: "iPhone 13", price: 47900, img: "https://m.media-amazon.com/images/I/71GLMJ7TQiL._SL1500_.jpg", colors: ['#27374d', '#ce1225', '#f5f5f5'] }
-            ];
-
-            // Create 200 items by repeating and slightly varying
-            for(let i=1; i<=200; i++) {
-                let s = series[i % series.length];
-                products.push({
-                    name: `${s.name} (${128 * (i%3 + 1)}GB)`, 
-                    price: s.price + (i*10), 
-                    img: s.img,
-                    colors: s.colors
-                });
+            if(products.length === 0) {
+                products = [
+                    { name: "iPhone 17 Pro Max (Natural Titanium)", price: 179900, img: "https://m.media-amazon.com/images/I/81Sig6biNPL._SL1500_.jpg", colors: ["#5e5e5e","#e1e2e3"] },
+                    { name: "Samsung Galaxy S24 Ultra 5G", price: 129999, img: "https://m.media-amazon.com/images/I/71RVuS3q9QL._SL1500_.jpg", colors: ["#444","#888"] },
+                    { name: "MacBook Air M3 (8GB/256GB)", price: 114900, img: "https://m.media-amazon.com/images/I/61f7KvqhVfL._SL1500_.jpg", colors: ["#2c2e2f","#e3e4e5"] },
+                    { name: "Sony WH-1000XM5 Noise Cancelling Headphones", price: 29990, img: "https://m.media-amazon.com/images/I/51SKu69S7pL._SL1500_.jpg", colors: ["#000","#eee"] },
+                    { name: "PlayStation 5 Console (Slim)", price: 54990, img: "https://m.media-amazon.com/images/I/510uTH8qS7L._SL1500_.jpg", colors: ["#fff"] },
+                    { name: "Apple Watch Ultra 2", price: 89900, img: "https://m.media-amazon.com/images/I/71Lfnk5lnBL._SL1500_.jpg", colors: ["#ff9f00","#000"] },
+                    { name: "Canon EOS R6 Mark II Mirrorless Camera", price: 224990, img: "https://m.media-amazon.com/images/I/7187qfX9XRL._SL1500_.jpg", colors: ["#000"] },
+                    { name: "JBL Boombox 3 Bluetooth Speaker", price: 39999, img: "https://m.media-amazon.com/images/I/71m6n6kI-RL._SL1500_.jpg", colors: ["#000","#4b5320"] },
+                    { name: "iPad Pro M4 (13-inch)", price: 129900, img: "https://m.media-amazon.com/images/I/61XZQXFQeVL._SL1500_.jpg", colors: ["#000","#eee"] },
+                    { name: "GoPro HERO12 Black Action Camera", price: 37990, img: "https://m.media-amazon.com/images/I/613YyYyF9HL._SL1500_.jpg", colors: ["#222"] }
+                ];
+                save();
             }
-            renderStore();
+            render();
         }
 
-        function renderStore() {
+        function render() {
             document.getElementById('productGrid').innerHTML = products.map((p, i) => `
-                <div class="product-card p-4 relative" onclick="showDetails(${i})">
-                    <span class="edit-lock"><i class="fa-solid fa-lock"></i></span>
-                    <img src="${p.img}" class="h-36 object-contain mx-auto mb-2">
-                    <h3 class="text-[10px] text-gray-600 line-clamp-2 h-7 font-medium">${p.name}</h3>
-                    <p class="text-sm font-bold mt-1">₹${Number(p.price).toLocaleString('en-IN')}</p>
-                    <img src="https://static-assets-web.flixcart.com/fk-p-linchpin-web/fk-cp-zion/img/fa_62673a.png" class="h-3 mt-1">
+                <div class="product-card p-4">
+                    <i class="fa-solid fa-gear admin-lock" onclick="openEdit(${i})"></i>
+                    <div onclick="showDetails(${i})" class="cursor-pointer">
+                        <img src="${p.img}" class="h-32 object-contain mx-auto mb-2">
+                        <h3 class="text-[10px] text-gray-700 font-medium line-clamp-2 h-7 leading-tight">${p.name}</h3>
+                        <p class="text-sm font-bold mt-1">₹${Number(p.price).toLocaleString('en-IN')}</p>
+                        <img src="https://static-assets-web.flixcart.com/fk-p-linchpin-web/fk-cp-zion/img/fa_62673a.png" class="h-3 mt-1">
+                    </div>
                 </div>
             `).join('');
+        }
+
+        function openEdit(idx) {
+            editIdx = idx;
+            const p = products[idx];
+            document.getElementById('pName').value = p.name;
+            document.getElementById('pPrice').value = p.price;
+            document.getElementById('pImg').value = p.img;
+            document.getElementById('pColors').value = p.colors.join(', ');
+            document.getElementById('delBtn').classList.remove('hidden');
+            document.getElementById('adminModal').classList.remove('hidden');
+        }
+
+        function openAddProduct() {
+            editIdx = -1;
+            document.getElementById('pName').value = "";
+            document.getElementById('pPrice').value = "";
+            document.getElementById('pImg').value = "";
+            document.getElementById('pColors').value = "";
+            document.getElementById('delBtn').classList.add('hidden');
+            document.getElementById('adminModal').classList.remove('hidden');
+        }
+
+        function saveProduct() {
+            if(document.getElementById('adminKey').value !== SECRET) return alert("Wrong Admin Secret!");
+            const newP = {
+                name: document.getElementById('pName').value,
+                price: Number(document.getElementById('pPrice').value),
+                img: document.getElementById('pImg').value,
+                colors: document.getElementById('pColors').value.split(',').map(s => s.trim())
+            };
+            if(editIdx === -1) products.unshift(newP); else products[editIdx] = newP;
+            save(); render(); closeAdmin();
+        }
+
+        function deleteProduct() {
+            if(document.getElementById('adminKey').value !== SECRET) return alert("Wrong Secret!");
+            if(confirm("Delete this product permanently?")) { products.splice(editIdx, 1); save(); render(); closeAdmin(); }
         }
 
         function showDetails(i) {
@@ -142,24 +184,20 @@
             document.getElementById('detName').innerText = window.activeP.name;
             document.getElementById('detPrice').innerText = "₹" + Number(window.activeP.price).toLocaleString('en-IN');
             document.getElementById('detImg').src = window.activeP.img;
-            
-            // Build Colors
-            const cc = document.getElementById('colorContainer');
-            cc.innerHTML = window.activeP.colors.map((c, idx) => `
-                <div class="variant-dot ${idx===0?'active':''}" style="background:${c}" onclick="selC(this)"></div>
-            `).join('');
-
+            document.getElementById('colorContainer').innerHTML = window.activeP.colors.map(c => `<div class="variant-dot" style="background:${c}"></div>`).join('');
             document.getElementById('storePage').classList.add('hidden');
             document.getElementById('detailPage').classList.remove('hidden');
             window.scrollTo(0,0);
         }
 
-        function selC(el) { document.querySelectorAll('.variant-dot').forEach(d => d.classList.remove('active')); el.classList.add('active'); }
-        function selS(el) { document.querySelectorAll('.storage-btn').forEach(b => b.classList.remove('active')); el.classList.add('active'); }
         function showStore() { document.getElementById('detailPage').classList.add('hidden'); document.getElementById('storePage').classList.remove('hidden'); }
         function openAddress() { document.getElementById('addressPage').classList.remove('hidden'); }
-        function openAdmin() { let p = prompt("Enter Secret Lock:"); if(p === SECRET) { alert("Admin Access Granted! You can now edit in code."); } else { alert("Wrong Lock!"); } }
-        function finalOrder() { window.location.href = `upi://pay?pa=${UPI_ID}&pn=Flipkart&am=${window.activeP.price}&cu=INR`; }
+        function closeAdmin() { document.getElementById('adminModal').classList.add('hidden'); document.getElementById('adminKey').value = ""; }
+        function startPay() { 
+            if(!document.getElementById('custName').value) return alert("Enter Your Name");
+            window.location.href = `upi://pay?pa=${UPI_ID}&pn=Flipkart&am=${window.activeP.price}&cu=INR`; 
+        }
+        function save() { localStorage.setItem('fk_mega_final', JSON.stringify(products)); }
 
         init();
     </script>
